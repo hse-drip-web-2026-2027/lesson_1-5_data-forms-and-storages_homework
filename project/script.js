@@ -30,7 +30,18 @@ function readJson(storage, key) {
     return null;
   }
 
-  return JSON.parse(json);
+  try {
+    const value = JSON.parse(json);
+
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      return value;
+    }
+  } catch (error) {
+    console.warn(`Запись "${key}" повреждена и будет удалена`, error);
+  }
+
+  storage.removeItem(key);
+  return null;
 }
 
 function showState(name) {
@@ -47,7 +58,11 @@ function renderCard(card) {
 
 function fillForm(card) {
   Object.entries(card).forEach(([name, value]) => {
-    form.elements[name].value = value;
+    const field = form.elements[name];
+
+    if (field) {
+      field.value = value;
+    }
   });
 }
 
